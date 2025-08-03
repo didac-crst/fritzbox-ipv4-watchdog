@@ -76,7 +76,7 @@ fritzbox-ipv4-watchdog/
 | **LOG_JSON**                 | `false`           | Emit JSON log lines instead of plain text                            |
 | **LOG_EVERY_CYCLE**          | `false`           | If `true`, log every poll; if `false`, only on state changes         |
 
-**Example `.en.example`:**
+**Example `.env.example`:**
 
 ```
 # --- FRITZ!Box creds / host ---------------------------------
@@ -125,10 +125,8 @@ TZ=Europe/Berlin
 ```bash
 git clone https://github.com/didac-crst/fritzbox-ipv4-watchdog.git
 cd fritzbox-ipv4-watchdog
-
 cp .env.example .env        # fill in FRITZ_PASSWORD
 mkdir logs                  # host directory for rotated logs
-
 ./start_watchdog.sh         # wrapper → docker compose up -d
 ```
 
@@ -151,10 +149,12 @@ Ctrl-C stops it gracefully.
 
 ## List available TR-064 services 🔍  
 
-```python
+```bash
+python - <<'PY'
 from fritzconnection import FritzConnection
 fc = FritzConnection(user="svc-rebooter", password="…")
 print([s for s in fc.services if s.startswith(("WANIP","WANPPP"))])
+PY
 ```  
 
 Choose the one whose `GetExternalIPAddress` matches the IPv4 in the UI and set it as `TARGET_SVC`.  
