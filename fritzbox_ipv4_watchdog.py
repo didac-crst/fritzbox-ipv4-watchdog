@@ -195,7 +195,7 @@ def main() -> None:
                 else:
                     logger.warning("IPv4 missing (0.0.0.0)")
                 last_state_present = present
-            elif LOG_EVERY_CYCLE:
+            elif LOG_EVERY_CYCLE or bad > 0 or healing_attempts > 0:
                 logger.debug("Poll: ipv4=%s bad=%d/%d", ip or "0.0.0.0", bad, MAX_BAD)
 
             # Update grace-period counter & heal if necessary
