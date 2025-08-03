@@ -1,131 +1,176 @@
-# FRITZBOX IPv4 Watchdog  
-  
+# FRITZ IPv4 Watchdog  
+
 > *“One more dawn, one more day, one more forced router reboot …”*  
-  
-I finally snapped at 05:46 one August morning.  
-  
-* • My bots stopped scraping Binance prices.*  
-* • The Cloudflare tunnel went dark.*  
-* • Telegram refused to send a single byte.*  
-  
-When I logged into the FRITZ!Box UI, the story was always the same:  
-IPv6 happily showed a shiny /56, yet **WAN-IPv4 read `0.0.0.0`**.  
-Every dual-stack service that still publishes **A-records only** was dead in the water.  
-The cure? Manually click “Neu verbinden” or, on bad days, power-cycle the router.  
-  
+
+I finally snapped at **10:46 AM** one July morning while I was at work:  
+no way to reach my LAN, yet my wife swore *“the internet works”*.  
+
+• *House cameras down*  
+• *Synology screaming “No Internet!”*  
+• *No outbound / inbound VPN*  
+• *Bots stopped scraping Binance*  
+• *Cloudflare tunnel dark*  
+• *Telegram couldn’t deliver a single byte*  
+
+Desperate, I told my wife to power-cycle the router.  
+It worked — until ten days later.  
+
+**Sunday, 06:30**, before the kids were awake: another Synology e-mail.  
+This time I was home. I opened the FRITZ!Box 7560 UI: IPv6 prefix fresh,  
+but **WAN-IPv4 = 0.0.0.0**. Every A-only service was dead again.  
+“Neu verbinden” fixed it, but what if this happens while we’re on holiday?  
+
+Solution: put a Raspberry Pi on guard duty so Mr Fritz can’t misbehave.  
 After the third pre-dawn crawl under my desk I wrote this watchdog.  
-Now the box heals itself while I stay in bed.  
-  
----
+Now the Pi heals the router while I stay in bed.
+
+---  
 
 ## What the script does 🩹  
-  
+
 1. Polls the router’s **TR-064** API every `CHECK_EVERY_SEC` seconds.  
-2. As soon as `GetExternalIPAddress` returns `0.0.0.0` for `MAX_BAD_CYCLES` polls:  
-   * First → forces a **PPP reconnect** (`ForceTermination`).  
-   * If that fails twice in a row → performs a **full reboot**.  
-3. Writes rotating logs to `/logs/watchdog.log` and (optionally) mirrors them to stdout, so `docker logs` works.  
-  
-The result: dual-stack outages shrink from *hours* to *≈30 seconds* and my bots never notice.  
-  
----
+2. If `GetExternalIPAddress` returns `0.0.0.0` for `MAX_BAD_CYCLES` polls:  
+   * first two times → **PPP reconnect** (`ForceTermination`)  
+   * third time onward → **full reboot** (`DeviceConfig:Reboot`)  
+3. Logs to `/logs/watchdog.log` with rotation and optionally mirrors to stdout.  
+
+Result: outages drop from *hours* to *≈30 s* and everything auto-recovers.  
+
+---  
 
 ## Repository layout 📂  
-  
+
 ```
 fritzbox-ipv4-watchdog/
-├── .env                  # all tunables & secrets (never commit the real PW!)
+├── .env.example          # copy → .env and fill in the password
 ├── fritzbox_ipv4_watchdog.py
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
-└── README.md             # ← you’re reading it
+├── start_watchdog.sh     # helper → docker compose up -d
+├── README.md             # ← you’re reading it
+└── LICENCE
 ```  
-  
----
+
+---  
 
 ## Configuration via `.env` 🔧  
-  
-| Variable          | Default             | Purpose                                          |
-| ----------------- | ------------------- | ------------------------------------------------ |
-| `FRITZ_HOST`      | `fritz.box`         | Router hostname / LAN-IP                         |
-| `FRITZ_USER`      | `svc-rebooter`      | User with TR-064 rights                          |
-| `FRITZ_PASSWORD`  | _(none)_            | **Required** – user’s password                   |
-| `TARGET_SVC`      | `WANPPPConnection1` | TR-064 service to poll (check via `fc.services`) |
-| `CHECK_EVERY_SEC` | `60`                | Polling interval (seconds)                       |
-| `MAX_BAD_CYCLES`  | `10`                | Polls without IPv4 before healing                |
-| `MODE`            | *unused*            | Escalation is automatic → reconnect, then reboot |
-| `TZ`              | _(unset)_           | Time-zone for log timestamps                     |
-| `LOG_*`           | see file            | Directory, rotation, level, JSON vs text, etc.   |
-  
-Example `.env` (verbose for the first week):  
-  
+
+| Variable                     | Default / Example | Purpose                                                              |
+| ---------------------------- | ----------------- | -------------------------------------------------------------------- |
+| **FRITZ_HOST**               | `192.168.1.1`     | Router hostname or LAN-IP                                            |
+| **FRITZ_USER**               | `svc-rebooter`    | User that owns the TR-064 session                                     |
+| **FRITZ_PASSWORD**           | —                 | **Required** – password for the user above                           |
+| **TARGET_SVC**               | `WANPPPConnection1` | TR-064 service to poll/heal (list with the snippet below)            |
+| **CHECK_EVERY_SEC**          | `60`              | Seconds between polls                                                |
+| **MAX_BAD_CYCLES**           | `5`               | Polls without IPv4 before a heal attempt                             |
+| **DEFAULT_REBOOT_DELAY**     | `150`             | Seconds to wait after issuing a reboot                               |
+| **TZ**                       | `Europe/Berlin`   | Time-zone for log timestamps                                         |
+| **LOG_LEVEL**                | `INFO`            | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`                             |
+| **LOG_DIR**                  | `/logs`           | Directory inside the container that is bind-mounted on the host      |
+| **LOG_FILE**                 | `watchdog.log`    | Base filename (rotates)                                              |
+| **LOG_ROTATE_WHEN**          | `midnight`        | Rotation unit (`S`, `M`, `H`, `D`, `midnight`, `W0`…`W6`)            |
+| **LOG_ROTATE_INTERVAL**      | `1`               | How many units between rotations                                     |
+| **LOG_BACKUP_COUNT**         | `30`              | How many rotated files to keep                                       |
+| **LOG_STDOUT**               | `true`            | Also mirror logs to container stdout (`docker logs …`)               |
+| **LOG_JSON**                 | `false`           | Emit JSON log lines instead of plain text                            |
+| **LOG_EVERY_CYCLE**          | `false`           | If `true`, log every poll; if `false`, only on state changes         |
+
+**Example `.en.example`:**
+
 ```
-FRITZ_HOST=fritz.box
+# --- FRITZ!Box creds / host ---------------------------------
+FRITZ_HOST=192.168.1.1
 FRITZ_USER=svc-rebooter
-FRITZ_PASSWORD=SuperSecret123!
+FRITZ_PASSWORD=REPLACE_ME
+
+# --- Behaviour ----------------------------------------------
 TARGET_SVC=WANPPPConnection1
 CHECK_EVERY_SEC=60
-MAX_BAD_CYCLES=10
-LOG_LEVEL=DEBUG
-LOG_EVERY_CYCLE=true
+MAX_BAD_CYCLES=5
+DEFAULT_REBOOT_DELAY=150
+
+# --- Logging -------------------------------------------------
+LOG_LEVEL=INFO
+LOG_DIR=/logs
+LOG_FILE=watchdog.log
+LOG_ROTATE_WHEN=midnight
+LOG_ROTATE_INTERVAL=1
+LOG_BACKUP_COUNT=30
+LOG_STDOUT=true
+LOG_JSON=false
+LOG_EVERY_CYCLE=false
+
+# --- Timezone -----------------------------------------------
 TZ=Europe/Berlin
 ```  
-  
----
 
-## Quick-start with Docker Compose 🐳  
-  
+---  
+
+## Create the `svc-rebooter` user (FRITZ!Box 7560) 👤  
+
+1. **System ▸ FRITZ!Box-Benutzer** → *Benutzer hinzufügen*  
+   * Benutzername `svc-rebooter`  
+   * Strong password  
+2. **Rights** → tick **“Zugang aus dem Heimnetz”** only.  
+3. **Heimnetz ▸ Netzwerk ▸ Netzwerkeinstellungen**  
+   * Enable **“Zugriff für Anwendungen zulassen”**  
+   * Enable **“Statusinformationen über UPnP übertragen”**  
+4. Save — TR-064 is now accessible for that user.  
+
+---  
+
+## Quick-start with Docker 🐳  
+
 ```bash
 git clone https://github.com/didac-crst/fritzbox-ipv4-watchdog.git
 cd fritzbox-ipv4-watchdog
-cp .env.example .env        # edit your real password
-mkdir logs                  # bind-mounted log dir
-docker compose up -d
-docker compose logs -f watchdog
-```  
-  
-*Bind mount* → `./logs/watchdog.log` on the host rotates nightly; keep the last 14 files.  
-  
----
+
+cp .env.example .env        # fill in FRITZ_PASSWORD
+mkdir logs                  # host directory for rotated logs
+
+./start_watchdog.sh         # wrapper → docker compose up -d
+```
+
+*Bind mount* `./logs/watchdog.log` rotates nightly; 30 files kept.  
+
+---  
 
 ## Running bare-metal 🖥️  
-  
+
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python fritzbox_ipv4_watchdog.py        # reads .env automatically
+cp .env.example .env        # fill in creds
+python fritzbox_ipv4_watchdog.py
 ```  
-  
-Stop with **Ctrl-C** – the script exits gracefully.  
-  
----
 
-## Listing available TR-064 services 🔍  
-  
-If your WAN object is not `WANPPPConnection1` (e.g. a fallback LTE stick):  
-  
+Ctrl-C stops it gracefully.  
+
+---  
+
+## List available TR-064 services 🔍  
+
 ```python
-python - <<'PY'
 from fritzconnection import FritzConnection
 fc = FritzConnection(user="svc-rebooter", password="…")
 print([s for s in fc.services if s.startswith(("WANIP","WANPPP"))])
-PY
 ```  
-  
-Pick the entry whose `GetExternalIPAddress` matches the public IPv4 shown in the FRITZ!Box UI and put it into `TARGET_SVC`.  
-  
----
+
+Choose the one whose `GetExternalIPAddress` matches the IPv4 in the UI and set it as `TARGET_SVC`.  
+
+---  
 
 ## Known limitations ⚠️  
-  
-* Relies on **TR-064** being enabled (`Heimnetz ▸ Netzwerk ▸ Netzwerkeinstellungen ▸ Heimnetzfreigaben`).  
-* FRITZ!OS below 7.0 sometimes stalls TR-064 replies; upgrade if polls throw repeated exceptions.  
-* Escalation ladder is simple: 2 failed reconnects → reboot. Tweak the `healing_attempts` logic inside the script if you want a different policy.  
-  
----
+
+* TR-064 must be enabled (see steps above).  
+* FRITZ!OS < 7.0 had TR-064 stalls — upgrade if you see frequent timeouts.  
+* Escalation ladder: **2 reconnects → reboot**. Edit `healing_attempts` in the script to change that.  
+
+
+---  
 
 ## Credits & Licence 📝  
-  
-Built with 🩵 after too many 5 a.m. reconnects.  
-Released under the MIT Licence – do whatever you want, just don’t blame me if your ISP’s DHCP server goes completely rogue.
+
+Built with 🩵 after too many dawn reboots.  
+Released under the MIT [Licence](LICENSE) — hack away, but don’t blame me if your ISP’s DHCP server goes rogue.
