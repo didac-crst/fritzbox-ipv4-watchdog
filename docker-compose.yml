@@ -1,0 +1,8 @@
+services:
+  watchdog:
+    build: .
+    restart: always
+    env_file: .env
+    network_mode: host           # needs direct LAN access to fritz.box
+    volumes:
+      - ./logs:/logs             # ◀︎ host-visible logs here
