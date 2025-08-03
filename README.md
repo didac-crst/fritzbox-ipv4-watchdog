@@ -1,28 +1,28 @@
 # FRITZ IPv4 Watchdog  
 
 > *“One more dawn, one more day, one more forced router reboot …”*  
-
-I finally snapped at **10:46 AM** one July morning while I was at work:  
-no way to reach my LAN, yet my wife swore *“the internet works”*.  
-
-• *House cameras down*  
-• *Synology screaming “No Internet!”*  
-• *No outbound / inbound VPN*  
-• *Bots stopped scraping Binance*  
-• *Cloudflare tunnel dark*  
-• *Telegram couldn’t deliver a single byte*  
-
-Desperate, I told my wife to power-cycle the router.  
-It worked — until ten days later.  
-
-**Sunday, 06:30**, before the kids were awake: another Synology e-mail.  
-This time I was home. I opened the FRITZ!Box 7560 UI: IPv6 prefix fresh,  
-but **WAN-IPv4 = 0.0.0.0**. Every A-only service was dead again.  
-“Neu verbinden” fixed it, but what if this happens while we’re on holiday?  
-
-Solution: put a Raspberry Pi on guard duty so Mr Fritz can’t misbehave.  
-After the third pre-dawn crawl under my desk I wrote this watchdog.  
-Now the Pi heals the router while I stay in bed.
+>
+> I finally snapped at **10:46 AM** one July morning while I was at work:  
+> no way to reach my LAN, yet my wife swore *“the internet works”*.  
+> 
+> • *House cameras down*  
+> • *Synology screaming “No Internet!”*  
+> • *No outbound / inbound VPN*  
+> • *Bots stopped scraping Binance*  
+> • *Cloudflare tunnel dark*  
+> • *Telegram couldn’t deliver a single byte*  
+> 
+> Desperate, I told my wife to power-cycle the router.  
+> It worked — until ten days later.  
+> 
+> **Sunday, 06:30**, before the kids were awake: another Synology e-mail.  
+> This time I was home. I opened the FRITZ!Box 7560 UI: IPv6 prefix fresh,  
+> but **WAN-IPv4 = 0.0.0.0**. Every A-only service was dead again.  
+> *“Neu verbinden”* fixed it, but what if this happens while we’re on holiday?  
+> 
+> Solution: put a Raspberry Pi on guard duty so Mr Fritz can’t misbehave.  
+> After the third pre-dawn crawl under my desk I wrote this watchdog.  
+> Now the Pi heals the router while I stay in bed.
 
 ---  
 
