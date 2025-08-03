@@ -127,7 +127,7 @@ git clone https://github.com/didac-crst/fritzbox-ipv4-watchdog.git
 cd fritzbox-ipv4-watchdog
 cp .env.example .env        # fill in FRITZ_PASSWORD
 mkdir logs                  # host directory for rotated logs
-./start_watchdog.sh         # wrapper → docker compose up -d
+sh start_watchdog.sh         # wrapper → docker compose up -d
 ```
 
 *Bind mount* `./logs/watchdog.log` rotates nightly; 30 files kept.  
