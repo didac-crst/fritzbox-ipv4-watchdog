@@ -237,7 +237,7 @@ def main() -> None:
 
         if LOG_EVERY_CYCLE or bad > 0 or healing_attempts > 0:
             # Log every cycle if requested, or if we have bad cycles or healing attempts
-            logger.info("Poll: ipv4=%s bad=%s/%s attempts=%s", ip or "0.0.0.0", bad, MAX_BAD, healing_attempts)
+            logger.info("Poll: ipv4=%s bad=%s/%s heal attempts=%s", ip or "0.0.0.0", bad, MAX_BAD, healing_attempts)
 
         # Update grace-period counter & heal if necessary
         if present:
