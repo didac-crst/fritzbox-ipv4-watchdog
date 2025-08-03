@@ -77,7 +77,7 @@ TZ=Europe/Berlin
 ## Quick-start with Docker Compose 🐳  
   
 ```bash
-git clone https://github.com/you/fritzbox-ipv4-watchdog.git
+git clone https://github.com/didac-crst/fritzbox-ipv4-watchdog.git
 cd fritzbox-ipv4-watchdog
 cp .env.example .env        # edit your real password
 mkdir logs                  # bind-mounted log dir
