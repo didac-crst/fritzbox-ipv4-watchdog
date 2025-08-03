@@ -1,0 +1,36 @@
+# create gitignore file for fritzbox_troubleshooter/fritzbox-ipv4-watchdog
+# This file is used to specify files and directories that should be ignored by Git.
+# It is typically used to avoid committing files that are not necessary for the project,
+# such as temporary files, logs, or build artifacts.
+
+# Ignore Python bytecode files
+*.pyc
+__pycache__/
+# Ignore log files
+*.log
+# Ignore environment files
+.env
+# Ignore Docker-related files
+docker-compose.override.yml
+# Ignore IDE-specific files
+.vscode/
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+# Ignore temporary files
+*.tmp
+# Ignore cache directories
+.cache/
+# Ignore coverage reports
+coverage/
+# Ignore virtual environment directories
+venv/
+.env/
+# Ignore build directories
+build/
+dist/
+# Ignore test output files
+*.test
+# Ignore configuration files
+config.yaml
+# Ignore secrets files
+secrets.json
