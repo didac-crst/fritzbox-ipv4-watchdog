@@ -33,9 +33,9 @@ The result: dual-stack outages shrink from *hours* to *≈30 seconds* and my bot
 ## Repository layout 📂  
   
 ```
-fritz-ipv4-watchdog/
+fritzbox-ipv4-watchdog/
 ├── .env                  # all tunables & secrets (never commit the real PW!)
-├── fritz_ipv4_watchdog.py
+├── fritzbox_ipv4_watchdog.py
 ├── requirements.txt
 ├── Dockerfile
 ├── docker-compose.yml
@@ -77,8 +77,8 @@ TZ=Europe/Berlin
 ## Quick-start with Docker Compose 🐳  
   
 ```bash
-git clone https://github.com/you/fritz-ipv4-watchdog.git
-cd fritz-ipv4-watchdog
+git clone https://github.com/you/fritzbox-ipv4-watchdog.git
+cd fritzbox-ipv4-watchdog
 cp .env.example .env        # edit your real password
 mkdir logs                  # bind-mounted log dir
 docker compose up -d
@@ -94,7 +94,7 @@ docker compose logs -f watchdog
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
-python fritz_ipv4_watchdog.py        # reads .env automatically
+python fritzbox_ipv4_watchdog.py        # reads .env automatically
 ```  
   
 Stop with **Ctrl-C** – the script exits gracefully.  

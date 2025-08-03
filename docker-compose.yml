@@ -1,6 +1,7 @@
 services:
-  watchdog:
+  fritzbox-ipv4-watchdog:
     build: .
+    container_name: fritzbox-ipv4-watchdog
     restart: always
     env_file: .env
     network_mode: host           # needs direct LAN access to fritz.box
