@@ -1,6 +1,6 @@
 # FRITZ IPv4 Watchdog
->**_“One more dawn, one more IP lease ghosted by the ISP, one more reboot to restore order…”_**
->
+**_“One more dawn, one more IP lease ghosted by the ISP, one more reboot to restore order…”_**
+
 > It began like all good tech mysteries:
 > subtle, quiet, and with that unmistakable scent of something just slightly broken.
 >
