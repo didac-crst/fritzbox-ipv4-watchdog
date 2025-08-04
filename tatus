@@ -1,0 +1,75 @@
+[1mdiff --git a/README.md b/README.md[m
+[1mindex 87040d8..2a026b7 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -1,57 +1,56 @@[m
+ # FRITZ IPv4 Watchdog[m
+[31m-[m
+[31m-> “One more dawn, one more IP lease ghosted by the ISP, one more reboot to restore order…”[m
+[32m+[m[32m**_“One more dawn, one more IP lease ghosted by the ISP, one more reboot to restore order…”_**[m
+ [m
+ > It began like all good tech mysteries:[m
+ > subtle, quiet, and with that unmistakable scent of something just slightly broken.[m
+[31m-[m
+[32m+[m[32m>[m
+ > **Tuesday morning, 10:46 AM.**[m
+ > I’m at work, minding my own packets.[m
+ > Then — *ding* — an email from Synology: *“Connection lost.”*[m
+ > That’s always the first hint something’s off.[m
+[31m-[m
+[32m+[m[32m>[m
+ > I try to SSH into my LAN. Nothing.[m
+ > I check the house cameras — offline.[m
+ > VPN? Dead both ways.[m
+ > Bots? Ignoring me on Telegram.[m
+ > Cloudflare tunnel? Gone.[m
+[31m-[m
+[32m+[m[32m>[m
+ > I call home.[m
+ > Wife says, *“Internet works fine.”*[m
+ > Told her to reboot the router. *Voilà.* Everything back.[m
+ > We moved on. We always do. Until we can’t.[m
+[31m-[m
+[32m+[m[32m>[m
+ > **Twelve days later. Sunday. 06:30.**[m
+ > Kids asleep. Peace in the kingdom.[m
+ > *Ding.* Another Synology email.[m
+ > This time, I’m home.[m
+[31m-[m
+[32m+[m[32m>[m
+ > I log into the FRITZ!Box 7560.[m
+ > IPv6? Shining with a fresh `/56` from Wilhelm.tel.[m
+ > But WAN-IPv4? **`0.0.0.0`**. Again.[m
+[31m-[m
+[32m+[m[32m>[m
+ > Every service stuck in the past with A-records was choking.[m
+ > Clicked *“Neu verbinden”*. IPv4 popped back in.[m
+ > Crisis postponed.[m
+[31m-[m
+[32m+[m[32m>[m
+ > But now the pattern was clear:[m
+ > **Mr. Fritz — or maybe the ISP — was letting the IPv4 lease quietly expire, and doing nothing about it.**[m
+[31m-[m
+[32m+[m[32m>[m
+ > And that’s when it hit me:[m
+ > *What if this happens while I’m away?*[m
+[31m-[m
+[32m+[m[32m>[m
+ > No cameras. No VPN.[m
+ > No Synology. No Cloudflare.[m
+ > No bots, no alerts, no control.[m
+[31m-[m
+[32m+[m[32m>[m
+ > So I did what any slightly neurotic engineer would do:[m
+ > I deputized a Raspberry Pi.[m
+[31m-[m
+[32m+[m[32m>[m
+ > This watchdog now polls Fritz’s TR-064 API.[m
+ > If IPv4 disappears too long, it tells Fritz to reconnect.[m
+ > If Fritz ignores that, the Pi orders a full reboot.[m
+ > Logs everything. No drama. No excuses.[m
+[31m-[m
+[32m+[m[32m>[m
+ > Since then?  [m
+ > Fritz gets out of line, the Pi puts him back in place.  [m
+ > IPv4 stays alive.  [m

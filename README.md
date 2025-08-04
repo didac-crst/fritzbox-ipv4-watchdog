@@ -1,57 +1,56 @@
 # FRITZ IPv4 Watchdog
-
-> “One more dawn, one more IP lease ghosted by the ISP, one more reboot to restore order…”
-
+>**_“One more dawn, one more IP lease ghosted by the ISP, one more reboot to restore order…”_**
+>
 > It began like all good tech mysteries:
 > subtle, quiet, and with that unmistakable scent of something just slightly broken.
-
+>
 > **Tuesday morning, 10:46 AM.**
 > I’m at work, minding my own packets.
 > Then — *ding* — an email from Synology: *“Connection lost.”*
 > That’s always the first hint something’s off.
-
+>
 > I try to SSH into my LAN. Nothing.
 > I check the house cameras — offline.
 > VPN? Dead both ways.
 > Bots? Ignoring me on Telegram.
 > Cloudflare tunnel? Gone.
-
+>
 > I call home.
 > Wife says, *“Internet works fine.”*
 > Told her to reboot the router. *Voilà.* Everything back.
 > We moved on. We always do. Until we can’t.
-
+>
 > **Twelve days later. Sunday. 06:30.**
 > Kids asleep. Peace in the kingdom.
 > *Ding.* Another Synology email.
 > This time, I’m home.
-
+>
 > I log into the FRITZ!Box 7560.
 > IPv6? Shining with a fresh `/56` from Wilhelm.tel.
 > But WAN-IPv4? **`0.0.0.0`**. Again.
-
+>
 > Every service stuck in the past with A-records was choking.
 > Clicked *“Neu verbinden”*. IPv4 popped back in.
 > Crisis postponed.
-
+>
 > But now the pattern was clear:
 > **Mr. Fritz — or maybe the ISP — was letting the IPv4 lease quietly expire, and doing nothing about it.**
-
+>
 > And that’s when it hit me:
 > *What if this happens while I’m away?*
-
+>
 > No cameras. No VPN.
 > No Synology. No Cloudflare.
 > No bots, no alerts, no control.
-
+>
 > So I did what any slightly neurotic engineer would do:
 > I deputized a Raspberry Pi.
-
+>
 > This watchdog now polls Fritz’s TR-064 API.
 > If IPv4 disappears too long, it tells Fritz to reconnect.
 > If Fritz ignores that, the Pi orders a full reboot.
 > Logs everything. No drama. No excuses.
-
+>
 > Since then?  
 > Fritz gets out of line, the Pi puts him back in place.  
 > IPv4 stays alive.  
