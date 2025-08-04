@@ -99,7 +99,7 @@ LOG_ROTATE_INTERVAL=1
 LOG_BACKUP_COUNT=30
 LOG_STDOUT=true
 LOG_JSON=false
-LOG_EVERY_CYCLE=false
+LOG_ON_CYCLE=60
 
 # --- Timezone -----------------------------------------------
 TZ=Europe/Berlin
