@@ -17,7 +17,8 @@
 >
 > I call home.  
 > Wife says, *“Internet works fine.”*  
-> Told her to reboot the router. *Voilà.* Everything back.  
+> Told her to reboot the router.  
+> *Voilà.* Everything back.  
 > We moved on. We always do. Until we can’t.
 >
 > **Twelve days later. Sunday. 06:30.**  
