@@ -34,3 +34,7 @@ dist/
 config.yaml
 # Ignore secrets files
 secrets.json
+# Ignore logs from the watchdog
+logs/
+*.log
+*.log.*
