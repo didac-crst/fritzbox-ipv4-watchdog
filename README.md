@@ -59,14 +59,14 @@ fritzbox-ipv4-watchdog/
 | Variable                     | Default / Example | Purpose                                                              |
 | ---------------------------- | ----------------- | -------------------------------------------------------------------- |
 | **FRITZ_HOST**               | `192.168.1.1`     | Router hostname or LAN-IP                                            |
-| **FRITZ_USER**               | `svc-rebooter`    | User that owns the TR-064 session                                     |
+| **FRITZ_USER**               | `svc-rebooter`    | User that owns the TR-064 session                                    |
 | **FRITZ_PASSWORD**           | —                 | **Required** – password for the user above                           |
-| **TARGET_SVC**               | `WANPPPConnection1` | TR-064 service to poll/heal (list with the snippet below)            |
+| **TARGET_SVC**               | `WANPPPConnection1` | TR-064 service to poll/heal (list with the snippet below)          |
 | **CHECK_EVERY_SEC**          | `60`              | Seconds between polls                                                |
 | **MAX_BAD_CYCLES**           | `5`               | Polls without IPv4 before a heal attempt                             |
 | **DEFAULT_REBOOT_DELAY**     | `150`             | Seconds to wait after issuing a reboot                               |
 | **TZ**                       | `Europe/Berlin`   | Time-zone for log timestamps                                         |
-| **LOG_LEVEL**                | `INFO`            | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`                             |
+| **LOG_LEVEL**                | `INFO`            | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`                            |
 | **LOG_DIR**                  | `/logs`           | Directory inside the container that is bind-mounted on the host      |
 | **LOG_FILE**                 | `watchdog.log`    | Base filename (rotates)                                              |
 | **LOG_ROTATE_WHEN**          | `midnight`        | Rotation unit (`S`, `M`, `H`, `D`, `midnight`, `W0`…`W6`)            |
@@ -74,7 +74,7 @@ fritzbox-ipv4-watchdog/
 | **LOG_BACKUP_COUNT**         | `30`              | How many rotated files to keep                                       |
 | **LOG_STDOUT**               | `true`            | Also mirror logs to container stdout (`docker logs …`)               |
 | **LOG_JSON**                 | `false`           | Emit JSON log lines instead of plain text                            |
-| **LOG_EVERY_CYCLE**          | `false`           | If `true`, log every poll; if `false`, only on state changes         |
+| **LOG_ON_CYCLE**             | `60`              | Log on every Nth cycle (0=off)                                       |
 
 **Example `.env.example`:**
 

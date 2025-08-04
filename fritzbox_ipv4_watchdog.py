@@ -31,7 +31,7 @@ Environment variables (with sensible defaults)
 | `LOG_LEVEL`           | `INFO`                | `DEBUG` \| `INFO` \| `WARNING`…      |
 | `LOG_STDOUT`          | `true`                | Also mirror logs to stdout           |
 | `LOG_JSON`            | `false`               | Emit JSON lines instead of text      |
-| `LOG_EVERY_CYCLE`     | `false`               | Log each poll, not just changes      |
+| `LOG_ON_CYCLE`        | `60`                  | Log on every Nth cycle (0=off)       |
 | `LOG_ROTATE_WHEN`     | `midnight`            | Rotation unit (`S`, `M`, `H`, `D`)   |
 | `LOG_ROTATE_INTERVAL` | `1`                   | How many units between rotations     |
 | `LOG_BACKUP_COUNT`    | `30`                  | Files to keep before pruning         |
@@ -73,7 +73,7 @@ LOG_FILE = os.getenv("LOG_FILE", "watchdog.log")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
 LOG_STDOUT = os.getenv("LOG_STDOUT", "true").lower() == "true"
 LOG_JSON = os.getenv("LOG_JSON", "false").lower() == "true"
-LOG_EVERY_CYCLE = os.getenv("LOG_EVERY_CYCLE", "false").lower() == "true"
+LOG_ON_CYCLE = int(os.getenv("LOG_ON_CYCLE", 60))
 
 ROTATE_WHEN = os.getenv("LOG_ROTATE_WHEN", "midnight")  # TimedRotatingFileHandler arg
 ROTATE_INTERVAL = int(os.getenv("LOG_ROTATE_INTERVAL", 1))
@@ -200,19 +200,47 @@ def heal(connection: FritzConnection, heal_by_reboot: bool = False) -> bool:
             logger.error(f"Failed to force PPP reconnection: {e}")
     return need_to_reinitialize
 
+def increment_cycle_counter(counter: int, log_on_cycle: int) -> int:
+    """
+    Increment the cycle counter and reset it if it reaches the log_on_cycle threshold.
+
+    This is used to control how often we log the current state.
+    """
+    if log_on_cycle > 0:
+        counter = (counter + 1) % log_on_cycle
+    return counter
+
+def is_time_to_log(cycle_counter: int, log_on_cycle: int) -> bool:
+    """
+    Check if it's time to log based on the cycle counter and log_on_cycle setting.
+
+    Returns True if we should log the current state.
+    """
+    # If log_on_cycle is 0 we don't log at all
+    log_enabled = log_on_cycle > 0
+    if not log_enabled:
+        return False  # No logging requested
+    else:
+        # If cycle_counter is 0, it's time to log
+        # Otherwise, this is a cycle where we don't log
+        return cycle_counter == 0
+
+
 
 def main() -> None:
     """Entry point - sets up the FritzConnection and runs the watchdog loop."""
 
-    fc = init_connection()  # Initialize the FritzConnection
+    logger.info(
+        f"Watchdog started • service={SERVICE} • poll={CHECK_EVERY}s • grace={CHECK_EVERY * MAX_BAD}s • log={file_path}",
+    )
+    # Initialize the FritzConnection
+    fc = init_connection()
 
     bad = 0  # consecutive polls without IPv4
     healing_attempts = 0  # reconnect attempts before we escalate
     last_state_present: bool | None = None  # tri-state: None/True/False
-
-    logger.info(
-        f"Watchdog started • service={SERVICE} • poll={CHECK_EVERY}s • grace={CHECK_EVERY * MAX_BAD}s • log={file_path}",
-    )
+    last_ip = ""  # last known IPv4 address
+    cycle_counter = 0  # for logging every N cycles
 
     while True:
         try:
@@ -227,6 +255,10 @@ def main() -> None:
         # Determine if the IPv4 is present
         present = ip not in ("0.0.0.0", "")
 
+        # Check if the IP has changed since the last poll
+        ip_change = (ip != last_ip)
+        last_ip = ip  # update last known IP
+
         # Only log when state changes (or if verbose logging requested)
         if present != last_state_present:
             if present:
@@ -234,8 +266,10 @@ def main() -> None:
             else:
                 logger.warning("IPv4 missing (0.0.0.0)")
             last_state_present = present
+        elif ip_change:
+            logger.info(f"IPv4 changed: {last_ip} → {ip}")
 
-        if LOG_EVERY_CYCLE or bad > 0 or healing_attempts > 0:
+        if is_time_to_log(cycle_counter, LOG_ON_CYCLE) or (bad > 0) or (healing_attempts > 0):
             # Log every cycle if requested, or if we have bad cycles or healing attempts
             logger.info("Poll: ipv4=%s bad=%s/%s heal attempts=%s", ip or "0.0.0.0", bad, MAX_BAD, healing_attempts)
 
@@ -269,6 +303,9 @@ def main() -> None:
                     fc = init_connection()  # re-initialize connection after reboot
                 healing_attempts += 1
                 bad = 0  # reset after healing attempt
+                
+        # Count cycles for logging on modular basis
+        cycle_counter = increment_cycle_counter(cycle_counter, LOG_ON_CYCLE)
         time.sleep(CHECK_EVERY)  # wait before next poll
 
 
