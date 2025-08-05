@@ -257,7 +257,6 @@ def main() -> None:
 
         # Check if the IP has changed since the last poll
         ip_change = (ip != last_ip)
-        last_ip = ip  # update last known IP
 
         # Only log when state changes (or if verbose logging requested)
         if present != last_state_present:
@@ -268,7 +267,9 @@ def main() -> None:
             last_state_present = present
         elif ip_change:
             logger.info(f"IPv4 changed: {last_ip} → {ip}")
-
+            
+        last_ip = ip  # update last known IP
+        
         if is_time_to_log(cycle_counter, LOG_ON_CYCLE) or (bad > 0) or (healing_attempts > 0):
             # Log every cycle if requested, or if we have bad cycles or healing attempts
             logger.info("Poll: ipv4=%s bad=%s/%s heal attempts=%s", ip or "0.0.0.0", bad, MAX_BAD, healing_attempts)
