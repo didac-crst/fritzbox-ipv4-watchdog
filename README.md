@@ -70,7 +70,7 @@
    * third time onward → **full reboot** (`DeviceConfig:Reboot`)  
 3. Logs to `/logs/watchdog.log` with rotation and optionally mirrors to stdout.  
 
-Result: outages drop from *hours* to *≈30 s* and everything auto-recovers.  
+Result: outages drop from *hours* to only *a few minutes* and everything auto-recovers.  
 
 ---  
 
