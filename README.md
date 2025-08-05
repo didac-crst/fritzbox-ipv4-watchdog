@@ -1,4 +1,7 @@
 # FRITZ IPv4 Watchdog
+[![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 **_“One more dawn, one more IP lease ghosted by the ISP, one more reboot to restore order…”_**
 
 > It began like all good tech mysteries:  
